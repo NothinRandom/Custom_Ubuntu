@@ -47,3 +47,40 @@ Example: sudo ./make_iso.sh --action "build" -n "test" --os_pr "20.04.6" --os_ty
 
 
 There are some sub-scripts to install various AWS tools if needed.  They are commented out in `customize_os.sh`, but put them to use if needed.  There is a good amount of comments, but feel free to raise issues as needed.
+
+
+## High Level Workflow
+1. Check and set variables from arguments
+1. Update the host operating system and upgrade all packages
+1. Install necessary build packages
+1. Download base ISO, its SHA256SUMS and gpg signature
+1. Determine --action as specified from arguments
+    1. If `update`:
+        1. Chroot into the workspace
+    1. If `build`:
+        1. Mount and extract the base ISO
+        1. Unsquash the file system as the custom root
+    1. If `remove`:
+        1. Remove workspace and exit script
+1. Mount various points and chroot the workspace
+1. Run customization script (`customize_os.sh`)
+    1. Update the custom root operating system and upgrade all packages
+    1. Install various packages
+    1. Purge various packages
+    1. ~~Install AWS services~~
+    1. Set default OS settings
+    1. Generate preseed scripts
+    1. Update and upgrade for good measures
+    1. Clean up kernels
+    1. Build initramfs
+    1. Generate manifest
+    1. Generate slideshow
+1. Copy changelog
+1. Update the boot files `vmlinuz` and `initrd`
+1. Generate the disk manifest
+1. Squash the custom root  using xz compression algorithm (best)
+1. Sign the squashfs (optional)
+1. Generate various disk info (e.g. loopback, preseed, etc)
+1. Generate MD5 sum
+1. Generate MBR and EFI for backwards compability boot (i.e. 20.04 or lower)
+1. Generate ISO via xorriso
